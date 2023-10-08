@@ -2,9 +2,9 @@
 
 import { FilterQuery, SortOrder } from 'mongoose';
 
-import Community from '../models/community.model';
-import Thread from '../models/thread.model';
-import User from '../models/user.model';
+import Community from '@/lib/models/community.model';
+import Thread from '@/lib/models/thread.model';
+import User from '@/lib/models/user.model';
 
 import { connectToDB } from '../mongoose';
 
@@ -37,10 +37,10 @@ export async function createCommunity(
     const createdCommunity = await newCommunity.save();
 
     // Update User model
-    user.comunities.push(createdCommunity._id);
+    user.communities.push(createdCommunity._id);
     await user.save();
 
-    return createCommunity;
+    return createdCommunity;
   } catch (error) {
     // Handle any errors;
     console.error('Error creating community:', error);
@@ -103,7 +103,7 @@ export async function fetchCommunityPosts(id: string) {
 export async function fetchCommunities({
   searchString = '',
   pageNumber = 1,
-  pageSize = 30,
+  pageSize = 20,
   sortBy = 'desc',
 }: {
   searchString?: string;
@@ -204,7 +204,7 @@ export async function updateCommunityInfo(communityId: string, name: string, use
     }
     return updatedCommunity;
   } catch (error) {
-    console.error('Error fetching communities:', error);
+    console.error('Error updating community information:', error);
     throw error;
   }
 }
@@ -233,7 +233,7 @@ export async function deleteCommunity(communityId: string) {
     await Promise.all(updateUserPromises);
     return deletedCommunity;
   } catch (error) {
-    console.error('Error fetching communities:', error);
+    console.error('Error deleting community:', error);
     throw error;
   }
 }

@@ -21,7 +21,7 @@ interface Props {
   currentUserId: string;
 }
 
-const Comment = ({ threadId, currentUserImg, currentUserId }: Props) => {
+export default function Comment({ threadId, currentUserImg, currentUserId }: Props) {
   const pathname = usePathname();
 
   const { organization } = useOrganization();
@@ -78,5 +78,3 @@ const Comment = ({ threadId, currentUserImg, currentUserId }: Props) => {
     </Form>
   );
 };
-
-export default Comment;

@@ -32,12 +32,12 @@ interface Props {
 }
 
 const AccountProfile = ({ user, btnTitle }: Props) => {
-  const [files, setFiles] = useState<File[]>([]);
-  const { startUpload } = useUploadThing('media');
   const router = useRouter();
   const pathname = usePathname();
+  const { startUpload } = useUploadThing('media');
+  const [files, setFiles] = useState<File[]>([]);
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof UserValidation>>({
     resolver: zodResolver(UserValidation),
     defaultValues: {
       profile_photo: user?.image ? user.image : '',
@@ -46,27 +46,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       bio: user?.bio ? user.bio : '',
     },
   });
-  function handleImage(e: ChangeEvent<HTMLInputElement>, fieldChange: (value: string) => void) {
-    e.preventDefault();
 
-    const fileReader = new FileReader();
-
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-
-      setFiles(Array.from(e.target.files));
-
-      if (!file.type.includes('image')) return;
-
-      fileReader.onload = async event => {
-        const imageDataUrl = event.target?.result?.toString() || '';
-
-        fieldChange(imageDataUrl);
-      };
-
-      fileReader.readAsDataURL(file);
-    }
-  }
   async function onSubmit(values: z.infer<typeof UserValidation>) {
     const blob = values.profile_photo;
 
@@ -81,12 +61,12 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
     }
 
     await updateUser({
-      userId: user.id,
-      username: values.username,
       name: values.name,
+      path: pathname,
+      username: values.username,
+      userId: user.id,
       bio: values.bio,
       image: values.profile_photo,
-      path: pathname,
     });
 
     if (pathname === '/profile/edit') {
@@ -95,6 +75,29 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
       router.push('/');
     }
   }
+
+  function handleImage(e: ChangeEvent<HTMLInputElement>, fieldChange: (value: string) => void) {
+    e.preventDefault();
+
+    const fileReader = new FileReader();
+
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+
+      setFiles(Array.from(e.target.files));
+
+      if (!file.type.includes('image')) return;
+
+      fileReader.onload = async (event) => {
+        const imageDataUrl = event.target?.result?.toString() || '';
+
+        fieldChange(imageDataUrl);
+      };
+
+      fileReader.readAsDataURL(file);
+    }
+  }
+
   return (
     <Form {...form}>
       <form className="flex flex-col justify-start gap-10" onSubmit={form.handleSubmit(onSubmit)}>
@@ -132,7 +135,6 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                   onChange={e => handleImage(e, field.onChange)}
                 />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
@@ -141,7 +143,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           name="name"
           render={({ field }) => (
             <FormItem className="flex w-full flex-col gap-3">
-              <FormLabel className="text-base-smeibold text-light-2">Name</FormLabel>
+              <FormLabel className="text-base-semibold text-light-2">Name</FormLabel>
               <FormControl>
                 <Input type="text" className="account-form_input no-focus" {...field} />
               </FormControl>

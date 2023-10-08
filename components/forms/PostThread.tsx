@@ -17,7 +17,7 @@ interface Props {
     userId: string;
 }
 
-function PostThread({ userId }: Props) {
+export default function PostThread({ userId }: Props) {
     const router = useRouter();
     const pathname = usePathname();
 
@@ -34,7 +34,7 @@ function PostThread({ userId }: Props) {
         await createThread({
             text: values.thread,
             author: userId,
-            communityId: null,
+            communityId: organization ? organization.id : null,
             path: pathname
         });
         router.push("/");
@@ -48,7 +48,7 @@ function PostThread({ userId }: Props) {
                     control={form.control}
                     name="thread"
                     render={({ field }) => (
-                        <FormItem className="flex flex-col w-full gap-3">
+                        <FormItem className="flex w-full flex-col gap-3">
                             <FormLabel className="text-base-semibold text-light-2">
                                 Content
                             </FormLabel>
@@ -67,5 +67,3 @@ function PostThread({ userId }: Props) {
         </Form>
     )
 }
-
-export default PostThread;
